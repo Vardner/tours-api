@@ -1,0 +1,41 @@
+{
+  "name": "natours-api",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "index.js",
+  "nodemonConfig": {
+    "verbose": false,
+    "ignore": [
+      "dev-data/*"
+    ]
+  },
+  "scripts": {
+    "dev": "nodemon server.js",
+    "debug": "ndb server.js",
+    "start:prod": "cross-env NODE_ENV=production node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "argon2": "^0.29.1",
+    "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^6.6.0",
+    "helmet": "^6.0.0",
+    "hpp": "^0.2.3",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.5.4",
+    "morgan": "^1.10.0",
+    "nodemailer": "^6.8.0",
+    "slugify": "^1.6.5",
+    "validator": "^13.7.0",
+    "xss-clean": "^0.1.1"
+  },
+  "devDependencies": {
+    "ndb": "^1.1.5"
+  }
+}
