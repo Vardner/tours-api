@@ -14,3 +14,4 @@
 14. Add swagger
 15. IMplement rate limiter with redis
 16. Implement smart pagination with pointers (tours)
+17. Read about (mongodb / mongoose Query) cursor and use it where possible

@@ -1,7 +1,7 @@
-import {Database} from '../database/database.js';
 import {Models} from '../database/models/index.js';
 import {AppError, catchAsync} from '../utils/index.js';
 import isEmail from 'validator/lib/isEmail.js';
+import {AuthController} from './auth.controller.js';
 
 export class UsersController {
     static getAllUsers = catchAsync(async (req, res, next) => {
@@ -11,7 +11,7 @@ export class UsersController {
 
         res.statusCode = 200;
         res.json({status: 'success', data: {users: users}});
-    })
+    });
 
     static createUser = catchAsync(async (req, res, next) => {
         const createdUser = await Models.User.create(req.body);
@@ -51,10 +51,17 @@ export class UsersController {
             user[key] = data[key];
         }
 
+        let needAccessUpdate = user.needAccessTokenUpdate();
+
         await user.save({validateModifiedOnly: true});
 
         res.statusCode = 200;
-        res.json({status: 'success'});
+        if (needAccessUpdate) {
+            const token = user.generateAccessToken();
+            AuthController.injectAccessToken(res, token);
+        }
+
+        res.json({status: 'success', message: 'Your information was successfully updated'});
     });
 
     static deleteAccount = catchAsync(async (req, res, next) => {

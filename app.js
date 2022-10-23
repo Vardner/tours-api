@@ -9,6 +9,7 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
+import cookieParser from 'cookie-parser';
 
 export const app = express();
 
@@ -18,6 +19,7 @@ const middleware = [
     express.json({limit: '10kb'}),
     mongoSanitize({replaceWith: '_', allowDots: false}),
     xss(),
+    cookieParser(),
     express.static(path.join(process.cwd(), 'public'))
 ];
 

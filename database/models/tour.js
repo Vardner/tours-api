@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import slugify from 'slugify';
+import {Names} from './models-names.js';
 
 const types = mongoose.Schema.Types;
 
@@ -100,6 +101,7 @@ const schema = new mongoose.Schema(
 
         guides: {
             type: [types.ObjectId],
+            ref: Names.Users,
             default: []
         },
 
@@ -138,4 +140,4 @@ schema.pre('aggregate', function (next) {
     next();
 });
 
-export const Tour = mongoose.model('Tour', schema);
+export const Tour = mongoose.model(Names.Tours, schema);

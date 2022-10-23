@@ -1,5 +1,5 @@
-import {Tour} from './tour.js';
 import {User} from './user.js';
+import {Tour} from './tour.js';
 
 export const Models = {
     Tour: Tour,

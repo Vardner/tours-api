@@ -2,7 +2,6 @@ import {Models} from '../database/models/index.js';
 import {QueryParser} from './utilities/query-parser.js';
 import {AppError, catchAsync} from '../utils/app-error.js';
 
-
 export class ToursController {
     static getAllTours = catchAsync(async (req, res, next) => {
         const queryHelper = new QueryParser(req.query);
@@ -27,19 +26,24 @@ export class ToursController {
         if (Array.isArray(req.body.guides)) {
             for (const guideId of req.body.guides) {
                 const user = await Models.User.findById(guideId);
-                if (user) {
+
+                if (user && user.active !== false) {
                     guides.push(guideId);
                 }
             }
-
         }
+
+        req.body.guides = guides;
+
         const createdTour = await Models.Tour.create(req.body);
         res.statusCode = 200;
         res.json({status: 'success', data: {tour: createdTour}});
     });
 
     static getTour = catchAsync(async (req, res, next) => {
-        const searchedTour = await Models.Tour.findById(req.params.id);
+        const searchedTour = await Models.Tour
+            .findById(req.params.id)
+            .populate({path: 'guides', select: Models.User.thirdPartyView});
 
         if (!searchedTour) {
             return next(new AppError('No tour found', 404));

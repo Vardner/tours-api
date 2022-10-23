@@ -11,28 +11,35 @@ export function verifyAccessToken (token, callback) {
 }
 
 export function accessTokenParse (req, res, next) {
-    if (!req.headers.authorization) {
+    const token = req.cookies.accessToken;
+
+    if (!token) {
         notAuthorizedHandle(next);
         return;
     }
 
-    const authScheme = req.headers.authorization.split(' ')[0];
-    if (authScheme !== 'Bearer') {
-        notAuthorizedHandle(next);
-        return;
-    }
 
-    const token = req.headers.authorization.split(' ')[1];
+    // if (!req.headers.authorization) {
+    //     notAuthorizedHandle(next);
+    //     return;
+    // }
+    //
+    // const authScheme = req.headers.authorization.split(' ')[0];
+    // if (authScheme !== 'Bearer') {
+    //     notAuthorizedHandle(next);
+    //     return;
+    // }
+    // const token = req.headers.authorization.split(' ')[1];
+
     verifyAccessToken(token, async (err, decoded) => {
         if (err) {
             notAuthorizedHandle(next);
         } else {
             const user = await Models.User.findById(decoded.id);
-
             // When "iat" or "expin" is generated it trunks ms from number.
             // As a result it may lose up to 1 sec in comparison with sUpdatedAt.
-            // To prevent accidental unauthorized result we will subtract 1 sec from it.
-            if (!user || (decoded.iat * 1000 - 1000) < +user.sUpdatedAt) {
+            // To prevent accidental unauthorized result we will add 1 sec to it.
+            if (!user || (decoded.iat * 1000 + 999) < +user.sUpdatedAt) {
                 notAuthorizedHandle(next);
                 return;
             }

@@ -60,7 +60,7 @@ export class AuthController {
         res.statusCode = 200;
         res.json({
             status: 'success',
-            data: {user: userData, accessToken: token}
+            data: {user: userData}
         });
     });
 
@@ -78,7 +78,7 @@ export class AuthController {
             const token = user.generateAccessToken();
             AuthController.injectAccessToken(res, token);
             res.statusCode = 200;
-            res.json({status: 'success', data: {accessToken: token}});
+            res.json({status: 'success'});
         } else {
             next(new AppError('User not found', 404));
         }
@@ -147,7 +147,6 @@ export class AuthController {
         res.send({
             status: 'success',
             message: 'Your password has been changed',
-            data: {accessToken: token}
         });
     });
 
@@ -177,7 +176,6 @@ export class AuthController {
         res.json({
             status: 'success',
             message: 'Password has been changed',
-            data: {accessToken: accessToken}
         });
 
         users.splice(users.indexOf(validUser), 1);

@@ -5,6 +5,7 @@ import isStrongPassword from 'validator/lib/isStrongPassword.js';
 import {CONSTANTS} from '../../utils/constants.js';
 import crypto from 'node:crypto';
 import jwt from 'jsonwebtoken';
+import {Names} from './models-names.js';
 
 const passwordDefault = Object.freeze({
     hashLength: 64,
@@ -148,6 +149,10 @@ schema.methods.generateAccessToken = function (expiresIn = 86400) {
     return jwt.sign({id: this._id}, process.env.APP_KEY, {expiresIn});
 };
 
+schema.methods.needAccessTokenUpdate = function () {
+    return this.isModified('password email name')
+}
+
 function addSUpdateAtTS (next) {
     const updateSet = Object.keys(this.getUpdate().$set).toString();
     if (/\w(password|email|name)\w/.test(updateSet)) {
@@ -168,7 +173,6 @@ async function hashPwdOnUpdateQuery (next) {
 
 schema
     .pre('save', function sUpdateTS (next) {
-        debugger
         if (this.isModified('password email name')) {
             this.sUpdatedAt = Date.now();
         }
@@ -186,4 +190,4 @@ schema
     .pre('findOneAndUpdate', hashPwdOnUpdateQuery)
     .pre('findOneAndUpdate', addSUpdateAtTS);
 
-export const User = mongoose.model('User', schema);
+export const User = mongoose.model(Names.Users, schema);
