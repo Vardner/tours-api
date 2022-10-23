@@ -1,6 +1,6 @@
-import {Models} from '../database/models/index.js';
 import {QueryParser} from './utilities/query-parser.js';
 import {AppError, catchAsync} from '../utils/app-error.js';
+import {DB} from '../database/database.js';
 
 export class ToursController {
     static getAllTours = catchAsync(async (req, res, next) => {
@@ -9,7 +9,7 @@ export class ToursController {
         queryHelper.parseFunctionalKeys();
         queryHelper.parseComparisonOperators();
         // TODO protect this part of code from pollution because it fails when pass double sort with that transforms into object
-        const tours = await Models.Tour
+        const tours = await DB.models.Tour
             .find(queryHelper.query)
             .select(queryHelper.fields)
             .sort(queryHelper.sort)
@@ -25,7 +25,7 @@ export class ToursController {
 
         if (Array.isArray(req.body.guides)) {
             for (const guideId of req.body.guides) {
-                const user = await Models.User.findById(guideId);
+                const user = await DB.models.User.findById(guideId);
 
                 if (user && user.active !== false) {
                     guides.push(guideId);
@@ -35,15 +35,14 @@ export class ToursController {
 
         req.body.guides = guides;
 
-        const createdTour = await Models.Tour.create(req.body);
+        const createdTour = await DB.models.Tour.create(req.body);
         res.statusCode = 200;
         res.json({status: 'success', data: {tour: createdTour}});
     });
 
     static getTour = catchAsync(async (req, res, next) => {
-        const searchedTour = await Models.Tour
-            .findById(req.params.id)
-            .populate({path: 'guides', select: Models.User.thirdPartyView});
+        const searchedTour = await DB.models.Tour
+            .findById(req.params.id);
 
         if (!searchedTour) {
             return next(new AppError('No tour found', 404));
@@ -54,7 +53,7 @@ export class ToursController {
     });
 
     static updateTour = catchAsync(async (req, res, next) => {
-        const updatedTour = await Models.Tour.findByIdAndUpdate(req.params.id, req.body, {
+        const updatedTour = await DB.models.Tour.findByIdAndUpdate(req.params.id, req.body, {
             new: true,
             runValidators: true
         });
@@ -68,7 +67,7 @@ export class ToursController {
     });
 
     static deleteTour = catchAsync(async (req, res, next) => {
-        const tour = await Models.Tour.findByIdAndDelete(req.params.id, {new: true});
+        const tour = await DB.models.Tour.findByIdAndDelete(req.params.id, {new: true});
 
         if (!tour) {
             return next(new AppError('No tour found', 404));
@@ -86,7 +85,7 @@ export class ToursController {
     }
 
     static getTourStats = catchAsync(async (req, res, next) => {
-        const stats = await Models.Tour
+        const stats = await DB.models.Tour
             .aggregate([
                 {$match: {ratingsAverage: {$gte: 4.5}}},
                 {
@@ -114,7 +113,7 @@ export class ToursController {
 
     static getMonthlyPlan = catchAsync(async (req, res, next) => {
         const year = +req.params.year;
-        const plan = await Models.Tour.aggregate([
+        const plan = await DB.models.Tour.aggregate([
             {
                 $unwind: '$startDates'
             },

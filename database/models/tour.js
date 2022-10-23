@@ -1,10 +1,11 @@
 import mongoose from 'mongoose';
 import slugify from 'slugify';
 import {Names} from './models-names.js';
+import {filters} from './filters/index.js';
 
 const types = mongoose.Schema.Types;
 
-const schema = new mongoose.Schema(
+export const Tour = new mongoose.Schema(
     {
         name: {type: types.String, required: true, unique: true, trim: true, maxLength: 40, minLength: 10},
 
@@ -115,29 +116,34 @@ const schema = new mongoose.Schema(
 );
 
 
-schema.virtual('durationWeeks').get(function () {
+Tour.virtual('durationWeeks').get(function () {
     return this.duration / 7;
 });
 
-schema.pre('save', function (next) {
+Tour.pre('save', function (next) {
     console.log(this);
     this.slug = slugify(this.name, {lower: true});
     next();
 });
 
-schema.pre('find', function (next) {
+Tour.pre('find', function (next) {
     this.find({secret: {$ne: true}});
     next();
 });
 
-schema.pre('findOne', function (next) {
+Tour.pre('find', function (next)  {
+    this.populate({path: 'guides', select: filters.User.thirdPartyView});
+    next();
+})
+
+Tour.pre('findOne', function (next) {
     this.find({secret: {$ne: true}});
     next();
 });
 
-schema.pre('aggregate', function (next) {
+Tour.pre('aggregate', function (next) {
     this.pipeline().unshift({$match: {secret: {$ne: true}}});
     next();
 });
 
-export const Tour = mongoose.model(Names.Tours, schema);
+

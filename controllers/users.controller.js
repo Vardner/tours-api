@@ -1,20 +1,20 @@
-import {Models} from '../database/models/index.js';
 import {AppError, catchAsync} from '../utils/index.js';
 import isEmail from 'validator/lib/isEmail.js';
 import {AuthController} from './auth.controller.js';
+import {DB} from '../database/database.js';
 
 export class UsersController {
     static getAllUsers = catchAsync(async (req, res, next) => {
-        const users = await Models.User
+        const users = await DB.models.User
             .find()
-            .select(Models.User.selectDefaults.thirdPartyView);
+            .select(DB.filters.User.thirdPartyView);
 
         res.statusCode = 200;
         res.json({status: 'success', data: {users: users}});
     });
 
     static createUser = catchAsync(async (req, res, next) => {
-        const createdUser = await Models.User.create(req.body);
+        const createdUser = await DB.models.User.create(req.body);
 
         res.statusCode = 200;
         res.json({status: 'success', data: {user: createdUser}});

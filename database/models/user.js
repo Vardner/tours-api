@@ -5,7 +5,6 @@ import isStrongPassword from 'validator/lib/isStrongPassword.js';
 import {CONSTANTS} from '../../utils/constants.js';
 import crypto from 'node:crypto';
 import jwt from 'jsonwebtoken';
-import {Names} from './models-names.js';
 
 const passwordDefault = Object.freeze({
     hashLength: 64,
@@ -26,7 +25,7 @@ function hash (message) {
 
 const types = mongoose.Schema.Types;
 
-const schema = new mongoose.Schema({
+export const User = new mongoose.Schema({
     name: {
         type: types.String,
         required: [true, 'Name is required']
@@ -84,32 +83,9 @@ const schema = new mongoose.Schema({
     }
 });
 
-schema.statics.selectDefaults = {
-    thirdPartyView: {
-        __v: false,
-        email: false,
-        emailConfirmed: false,
-        role: false,
-        password: false,
-        resetPassword: false,
-        resetPasswordExp: false,
-        sUpdatedAt: false,
-    },
-    omitTech: {
-        __v: false,
-        _id: false,
-        role: false,
-        emailConfirmed: false,
-        resetPassword: false,
-        resetPasswordExp: false,
-        sUpdatedAt: false,
-        active: false,
-    },
-};
+User.statics.password = passwordDefault;
 
-schema.statics.password = passwordDefault;
-
-schema.statics.isStrongPassword = (password) => {
+User.statics.isStrongPassword = (password) => {
     return isStrongPassword(password, {
         minSymbols: 0,
         minLength: passwordDefault.minLength,
@@ -119,39 +95,39 @@ schema.statics.isStrongPassword = (password) => {
     });
 };
 
-schema.statics.passwordRecommendation = `Password must be at least ${passwordDefault.minLength} characters long; `
+User.statics.passwordRecommendation = `Password must be at least ${passwordDefault.minLength} characters long; `
     + `contain at least: ${passwordDefault.minUppercase} uppercase character, ${passwordDefault.minLowercase} `
     + `lowercase character, and ${passwordDefault.minNumbers} number`;
 
-schema.statics.hashPassword = hash;
+User.statics.hashPassword = hash;
 
-schema.statics.generateResetToken = function () {
+User.statics.generateResetToken = function () {
     return crypto.randomBytes(32).toString('hex');
 };
 
-schema.statics.generateResetTokenPair = (token = schema.statics.generateResetToken()) => {
+User.statics.generateResetTokenPair = (token = User.statics.generateResetToken()) => {
     return {token, hash: crypto.createHash('sha256').update(token).digest('hex')};
 };
 
-schema.methods.verifyPassword = function (candidate) {
+User.methods.verifyPassword = function (candidate) {
     return argon2.verify(this.password, candidate);
 };
 
-schema.methods.createResetToken = function () {
-    const pair = schema.statics.generateResetTokenPair();
+User.methods.createResetToken = function () {
+    const pair = User.statics.generateResetTokenPair();
     const token = pair.token;
     this.resetPassword = pair.hash;
     this.resetPasswordExp = Date.now() + 30 * 60 * 1000;
     return token;
 };
 
-schema.methods.generateAccessToken = function (expiresIn = 86400) {
+User.methods.generateAccessToken = function (expiresIn = 86400) {
     return jwt.sign({id: this._id}, process.env.APP_KEY, {expiresIn});
 };
 
-schema.methods.needAccessTokenUpdate = function () {
-    return this.isModified('password email name')
-}
+User.methods.needAccessTokenUpdate = function () {
+    return this.isModified('password email name');
+};
 
 function addSUpdateAtTS (next) {
     const updateSet = Object.keys(this.getUpdate().$set).toString();
@@ -171,7 +147,7 @@ async function hashPwdOnUpdateQuery (next) {
     next();
 }
 
-schema
+User
     .pre('save', function sUpdateTS (next) {
         if (this.isModified('password email name')) {
             this.sUpdatedAt = Date.now();
@@ -179,15 +155,14 @@ schema
         next();
     });
 
-schema.pre('find', function (next) {
+User.pre('find', function (next) {
     this.find({active: {$ne: false}});
     next();
 });
 
-schema
+User
     .pre('updateOne', {query: true, document: false}, hashPwdOnUpdateQuery)
     .pre('updateOne', {query: true, document: false}, addSUpdateAtTS)
     .pre('findOneAndUpdate', hashPwdOnUpdateQuery)
     .pre('findOneAndUpdate', addSUpdateAtTS);
 
-export const User = mongoose.model(Names.Users, schema);

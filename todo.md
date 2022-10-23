@@ -15,3 +15,4 @@
 15. IMplement rate limiter with redis
 16. Implement smart pagination with pointers (tours)
 17. Read about (mongodb / mongoose Query) cursor and use it where possible
+18. Make that user role will be stored in tour and not in user

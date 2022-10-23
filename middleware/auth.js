@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import {AppError} from '../utils/app-error.js';
-import {Models} from '../database/models/index.js';
+import {models} from '../database/models/index.js';
 
 function notAuthorizedHandle (next) {
     next(new AppError('Authorization is required', 401));
@@ -35,7 +35,7 @@ export function accessTokenParse (req, res, next) {
         if (err) {
             notAuthorizedHandle(next);
         } else {
-            const user = await Models.User.findById(decoded.id);
+            const user = await models.User.findById(decoded.id);
             // When "iat" or "expin" is generated it trunks ms from number.
             // As a result it may lose up to 1 sec in comparison with sUpdatedAt.
             // To prevent accidental unauthorized result we will add 1 sec to it.

@@ -1,7 +1,7 @@
 import {AppError, catchAsync} from '../utils/app-error.js';
-import {Models} from '../database/models/index.js';
 import jwt from 'jsonwebtoken';
 import {sendMail} from '../utils/index.js';
+import {DB} from '../database/database.js';
 
 const JWT_COOKIE_MAX_AGE = process.env.JWT_COOKIE_EXPIRATION * 24 * 60 * 60 * 1000;
 
@@ -31,13 +31,13 @@ export class AuthController {
             return;
         }
 
-        if (!Models.User.isStrongPassword(password)) {
-            next(new AppError(Models.User.passwordRecommendation, 400));
+        if (!DB.models.User.isStrongPassword(password)) {
+            next(new AppError(DB.models.User.passwordRecommendation, 400));
             return;
         }
 
-        const passwordHash = await Models.User.hashPassword(password);
-        const createdUser = new Models.User(process.env.NODE_ENV === 'development'
+        const passwordHash = await DB.models.User.hashPassword(password);
+        const createdUser = new DB.models.User(process.env.NODE_ENV === 'development'
             ? {name: name, email: email, password: passwordHash, role: req.body.role}
             : {name: name, email: email, password: passwordHash}
         );
@@ -65,7 +65,7 @@ export class AuthController {
     });
 
     static signIn = catchAsync(async (req, res, next) => {
-        const user = await Models.User.findOne({email: req.body.email});
+        const user = await DB.models.User.findOne({email: req.body.email});
 
         if (!user) {
             next(new AppError('User not found', 404));
@@ -85,7 +85,7 @@ export class AuthController {
     });
 
     static forgotPassword = catchAsync(async (req, res, next) => {
-        const user = await Models.User.findOne({email: req.body.email});
+        const user = await DB.models.User.findOne({email: req.body.email});
 
         if (!user) {
             next(new AppError(404, 'There is no user with provided email address'));
@@ -133,12 +133,12 @@ export class AuthController {
             return;
         }
 
-        if (!Models.User.isStrongPassword(updatedPassword)) {
-            next(new AppError(Models.User.passwordRecommendation, 400));
+        if (!DB.models.User.isStrongPassword(updatedPassword)) {
+            next(new AppError(DB.models.User.passwordRecommendation, 400));
             return;
         }
 
-        user.password = await Models.User.hashPassword(updatedPassword);
+        user.password = await DB.models.User.hashPassword(updatedPassword);
         await user.save({validateModifiedOnly: true});
 
         const token = user.generateAccessToken();
@@ -152,9 +152,9 @@ export class AuthController {
 
     static resetPassword = catchAsync(async (req, res, next) => {
         const resetPwdToken = req.query.token;
-        const {hash} = Models.User.generateResetTokenPair(resetPwdToken);
+        const {hash} = DB.models.User.generateResetTokenPair(resetPwdToken);
         // const users = await Models.User.find();
-        const users = await Models.User.find({resetPassword: hash});
+        const users = await DB.models.User.find({resetPassword: hash});
 
         const validUsers = users.filter(user => +user.resetPasswordExp > Date.now());
 
@@ -166,7 +166,7 @@ export class AuthController {
         const validUser = validUsers[0];
         validUser.resetPasswordExp = undefined;
         validUser.resetPassword = undefined;
-        validUser.password = await Models.User.hashPassword(req.body.password);
+        validUser.password = await DB.models.User.hashPassword(req.body.password);
 
         await validUser.save({validateModifiedOnly: true});
 
