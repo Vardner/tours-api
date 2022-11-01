@@ -120,6 +120,12 @@ Tour.virtual('durationWeeks').get(function () {
     return this.duration / 7;
 });
 
+Tour.virtual('reviews', {
+    ref: Names.Reviews,
+    localField: '_id',
+    foreignField: 'tour'
+})
+
 Tour.pre('save', function (next) {
     console.log(this);
     this.slug = slugify(this.name, {lower: true});

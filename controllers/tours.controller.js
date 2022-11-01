@@ -42,7 +42,8 @@ export class ToursController {
 
     static getTour = catchAsync(async (req, res, next) => {
         const searchedTour = await DB.models.Tour
-            .findById(req.params.id);
+            .findById(req.params.id)
+            .populate({path: 'reviews'});
 
         if (!searchedTour) {
             return next(new AppError('No tour found', 404));

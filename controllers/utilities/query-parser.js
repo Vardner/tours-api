@@ -8,6 +8,31 @@ export class QueryParser {
     fields = {__v: false};
     limit = 100;
 
+    static functionalKeys = ['fields', 'sort', 'limit', 'page'];
+
+    static functionalKeysParsers = {
+        fields: (query) => {
+            if (query.fields) {
+                return query.fields.replace(/,/g, ' ').trim() + ' -__v';
+            }
+        },
+        sort: (query) => {
+            if (query.sort) {
+                return query.sort.replace(/,/g, ' ')
+            }
+        },
+        limit: (query) => {
+            if (!isNaN(+query.limit)) {
+                return +query.limit;
+            }
+        },
+        page: (query) => {
+            if (+query.page > 0) {
+                return (+query.page || 1) - 1;
+            }
+        },
+    }
+
     constructor (queryString) {
         this.query = Object.assign({}, queryString);
         this.genuineQuery = queryString;
@@ -20,10 +45,9 @@ export class QueryParser {
 
     filterFunctionalKeys () {
         const filteredQuery = {};
-        const excludedFields = ['page', 'sort', 'limit', 'fields'];
 
         for (let queryKey in this.query) {
-            if (excludedFields.includes(queryKey)) {
+            if (QueryParser.functionalKeys.includes(queryKey)) {
                 continue;
             }
             filteredQuery[queryKey] = this.query[queryKey];
@@ -32,21 +56,11 @@ export class QueryParser {
         this.filtered = true;
     }
 
-    parseFunctionalKeys () {
-        if (this.genuineQuery.fields) {
-            this.fields = this.genuineQuery.fields.replace(/,/g, ' ').trim() + ' -__v';
-        }
-
-        if (this.genuineQuery.sort) {
-            this.sort = this.genuineQuery.sort.replace(/,/g, ' ')
-        }
-
-        if (!isNaN(+this.genuineQuery.limit)) {
-            this.limit = +this.genuineQuery.limit;
-        }
-
-        if (+this.genuineQuery.page > 0) {
-            this.page = (+this.genuineQuery.page || 1) - 1;
+    parseFunctionalKeys (keys = QueryParser.functionalKeys) {
+        for (let key of keys) {
+            if (QueryParser.functionalKeysParsers[key]) {
+                this[key] = QueryParser.functionalKeysParsers[key](this.genuineQuery) ?? this[key];
+            }
         }
 
         this.functionalKeysParsed = true;

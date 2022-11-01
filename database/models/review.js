@@ -1,18 +1,19 @@
 import mongoose from 'mongoose';
 import {Names} from './models-names.js';
+import {DB} from '../database.js';
 
-const types = mongoose.Types;
+const types = mongoose.Schema.Types;
 
 export const Review = new mongoose.Schema(
     {
         user: {
             type: types.ObjectId,
-            required: [true, 'Review must be long to some user'],
+            required: [true, 'Review must be long to a user'],
             ref: Names.Users
         },
         tour: {
             type: types.ObjectId,
-            required: [true, 'Review must be long to some tour'],
+            required: [true, 'Review must be long to a tour'],
             ref: Names.Tours
         },
         review: {
@@ -37,3 +38,8 @@ export const Review = new mongoose.Schema(
         toObject: {virtuals: true},
     }
 );
+
+Review.pre(/^find/, function (next) {
+    this.populate({path: 'user', select: DB.filters.User.thirdPartyView});
+    next();
+});
