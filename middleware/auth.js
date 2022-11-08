@@ -35,17 +35,17 @@ export function accessTokenParse (req, res, next) {
         if (err) {
             notAuthorizedHandle(next);
         } else {
-            const user = await models.User.findById(decoded.id);
+            if (!req._middlewareData) {
+                req._middlewareData = {}
+            }
+
+            const user = req._middlewareData.user || await models.User.findById(decoded.id);
             // When "iat" or "expin" is generated it trunks ms from number.
             // As a result it may lose up to 1 sec in comparison with sUpdatedAt.
             // To prevent accidental unauthorized result we will add 1 sec to it.
             if (!user || (decoded.iat * 1000 + 999) < +user.sUpdatedAt) {
                 notAuthorizedHandle(next);
                 return;
-            }
-
-            if (!req._middlewareData) {
-                req._middlewareData = {}
             }
 
             req._middlewareData.user = user;

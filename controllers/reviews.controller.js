@@ -1,24 +1,24 @@
 import {AppError, catchAsync} from '../utils/index.js';
 import {DB} from '../database/database.js';
 import {QueryParser} from './utilities/query-parser.js';
+import {HandlerFactory} from './utilities/handler-factory.js';
 
 export class ReviewsController {
     static post = catchAsync(async (req, res, next) => {
         const user = req._middlewareData.user;
-        const relatedTour = req.body.tour;
+        const relatedTour = req.params.tour;
         const tour = await DB.models.Tour.findById(relatedTour);
 
         if (!tour) {
-            res.status = 404;
-            res.json(new AppError('No tour was found', res.status));
+            next(new AppError('No tour was found', 404));
             return;
         }
 
         const review = await DB.models.Review.create({
             tour: tour._id,
             user: user._id,
-            review: req.body.review.content,
-            rating: req.body.review.rating
+            review: req.body.content,
+            rating: req.body.rating
         });
 
         res.status = 201;
@@ -26,11 +26,10 @@ export class ReviewsController {
     });
 
     static get = catchAsync(async (req, res, next) => {
-        const tourId = req.query.tour;
+        const tourId = req.params.tour;
 
         if (!tourId) {
-            res.status = 404;
-            res.json(new AppError('No reviews was found', res.status));
+            next(new AppError('No tour was found', 404));
             return;
         }
 
@@ -46,4 +45,6 @@ export class ReviewsController {
         res.status = 200;
         res.json({status: 'success', results: reviews.length, data: {reviews}});
     });
+
+    static delete = HandlerFactory.deleteOne(DB.models.Review);
 }

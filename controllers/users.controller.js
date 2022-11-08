@@ -2,6 +2,7 @@ import {AppError, catchAsync} from '../utils/index.js';
 import isEmail from 'validator/lib/isEmail.js';
 import {AuthController} from './auth.controller.js';
 import {DB} from '../database/database.js';
+import {HandlerFactory} from './utilities/handler-factory.js';
 
 export class UsersController {
     static getAllUsers = catchAsync(async (req, res, next) => {
@@ -30,10 +31,7 @@ export class UsersController {
         res.json({status: 'error', message: 'not implemented'});
     }
 
-    static deleteUser (req, res, next) {
-        res.statusCode = 501;
-        res.json({status: 'error', message: 'not implemented'});
-    }
+    static deleteUser = HandlerFactory.deleteOne(DB.models.User)
 
     static alter = catchAsync(async (req, res, next) => {
         const user = req._middlewareData.user;

@@ -1,6 +1,7 @@
 import {QueryParser} from './utilities/query-parser.js';
 import {AppError, catchAsync} from '../utils/app-error.js';
 import {DB} from '../database/database.js';
+import {HandlerFactory} from './utilities/handler-factory.js';
 
 export class ToursController {
     static getAllTours = catchAsync(async (req, res, next) => {
@@ -67,16 +68,18 @@ export class ToursController {
         res.json({status: 'success', data: {tour: updatedTour}});
     });
 
-    static deleteTour = catchAsync(async (req, res, next) => {
-        const tour = await DB.models.Tour.findByIdAndDelete(req.params.id, {new: true});
+    // static deleteTour = catchAsync(async (req, res, next) => {
+    //     const tour = await DB.models.Tour.findByIdAndDelete(req.params.id, {new: true});
+    //
+    //     if (!tour) {
+    //         return next(new AppError('No tour found', 404));
+    //     }
+    //
+    //     res.statusCode = 200;
+    //     res.json({status: 'success'});
+    // });
 
-        if (!tour) {
-            return next(new AppError('No tour found', 404));
-        }
-
-        res.statusCode = 200;
-        res.json({status: 'success'});
-    });
+    static deleteTour = HandlerFactory.deleteOne(DB.models.Tour);
 
     static getTop5Cheap (req, res, next) {
         console.log('getTop5Cheap');
@@ -140,5 +143,22 @@ export class ToursController {
 
         res.statusCode = 200;
         res.json({status: 'success', data: {plan}});
+    });
+
+    static retrieveTourFromParams = catchAsync(async (req, res, next) => {
+        console.log('tour retrieve');
+        console.log(req.params);
+        if (!req._middlewareData) {
+            req._middlewareData = {};
+        }
+
+        const tour = await DB.models.Tour.findById(req.params.id);
+        if (!tour) {
+            next(new AppError('Tour was not found', 404));
+            return;
+        }
+
+        req._middlewareData.tour = tour;
+        next();
     });
 }

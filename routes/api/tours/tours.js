@@ -1,8 +1,9 @@
 import express from 'express';
-import {ToursController} from '../../controllers/index.js';
-import {accessTokenParse, rolePermission} from '../../middleware/index.js';
-import {CONSTANTS} from '../../utils/index.js';
+import {ToursController} from '../../../controllers/index.js';
+import {accessTokenParse, rolePermission} from '../../../middleware/index.js';
+import {CONSTANTS} from '../../../utils/index.js';
 import hpp from 'hpp';
+import {reviewsRouter} from './reviews.js';
 
 export const toursRoute = express.Router();
 
@@ -20,3 +21,5 @@ toursRoute.route('/:id')
     .get(ToursController.getTour)
     .patch(ToursController.updateTour)
     .delete(accessTokenParse, rolePermission(CONSTANTS.ROLES.admin, CONSTANTS.ROLES.leadGuide), ToursController.deleteTour);
+
+toursRoute.use('/:tour/reviews', reviewsRouter);
