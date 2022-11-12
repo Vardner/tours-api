@@ -1,7 +1,7 @@
 import {models} from './models/index.js';
-import {filters} from './models/filters/index.js';
+import {projections} from './models/projections/index.js';
 
 export const DB = {
     models: models,
-    filters: filters
+    projections: projections
 }

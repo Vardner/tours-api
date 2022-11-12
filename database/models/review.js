@@ -40,6 +40,6 @@ export const Review = new mongoose.Schema(
 );
 
 Review.pre(/^find/, function (next) {
-    this.populate({path: 'user', select: DB.filters.User.thirdPartyView});
+    this.populate({path: 'user', select: DB.projections.User.thirdPartyView});
     next();
 });

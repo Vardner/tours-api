@@ -4,34 +4,30 @@ import {AuthController} from './auth.controller.js';
 import {DB} from '../database/database.js';
 import {HandlerFactory} from './utilities/handler-factory.js';
 
+const UserModel = DB.models.User;
+
 export class UsersController {
     static getAllUsers = catchAsync(async (req, res, next) => {
-        const users = await DB.models.User
+        const users = await UserModel
             .find()
-            .select(DB.filters.User.thirdPartyView);
+            .select(DB.projections.User.thirdPartyView);
 
         res.statusCode = 200;
         res.json({status: 'success', data: {users: users}});
     });
 
-    static createUser = catchAsync(async (req, res, next) => {
-        const createdUser = await DB.models.User.create(req.body);
+    static getUser = HandlerFactory.getOne(UserModel, {projection: DB.projections.User.thirdPartyView})
 
-        res.statusCode = 200;
-        res.json({status: 'success', data: {user: createdUser}});
+    static update = HandlerFactory.updateOne(UserModel, {
+        sanitizer: (body) => {
+            body.resetPassword = undefined;
+            body.resetPasswordExp = undefined;
+            body.sUpdatedAt = undefined;
+            return body;
+        }
     });
 
-    static getUser (req, res, next) {
-        res.statusCode = 501;
-        res.json({status: 'error', message: 'not implemented'});
-    }
-
-    static updateUser (req, res, next) {
-        res.statusCode = 501;
-        res.json({status: 'error', message: 'not implemented'});
-    }
-
-    static deleteUser = HandlerFactory.deleteOne(DB.models.User)
+    static deleteUser = HandlerFactory.deleteOne(UserModel);
 
     static alter = catchAsync(async (req, res, next) => {
         const user = req._middlewareData.user;
@@ -70,5 +66,19 @@ export class UsersController {
         res.statusCode = 200;
         res.json({status: 'success'});
     });
+
+    static getMe (req, res, next) {
+        const me = req._middlewareData.user.toObject({virtuals: true, versionKey: false});
+        const meView = {};
+
+        for (let key in me) {
+            if (DB.projections.User.ownData[key] !== false) {
+                meView[key] = me[key];
+            }
+        }
+
+        res.statusCode = 200;
+        res.json({status: 'success', data: {user: meView}});
+    }
 }
 

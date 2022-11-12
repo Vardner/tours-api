@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import slugify from 'slugify';
 import {Names} from './models-names.js';
-import {filters} from './filters/index.js';
+import {projections} from './projections/index.js';
 
 const types = mongoose.Schema.Types;
 
@@ -138,7 +138,7 @@ Tour.pre('find', function (next) {
 });
 
 Tour.pre('find', function (next)  {
-    this.populate({path: 'guides', select: filters.User.thirdPartyView});
+    this.populate({path: 'guides', select: projections.User.thirdPartyView});
     next();
 })
 

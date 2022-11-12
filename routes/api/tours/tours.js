@@ -15,11 +15,11 @@ toursRoute.get('/monthly-plan/:year', ToursController.getMonthlyPlan);
 
 toursRoute.route('/')
     .get(hpp(), accessTokenParse, ToursController.getAllTours)
-    .post(ToursController.createTour);
+    .post(ToursController.createOne);
 
 toursRoute.route('/:id')
-    .get(ToursController.getTour)
-    .patch(ToursController.updateTour)
-    .delete(accessTokenParse, rolePermission(CONSTANTS.ROLES.admin, CONSTANTS.ROLES.leadGuide), ToursController.deleteTour);
+    .get(ToursController.getOne)
+    .patch(accessTokenParse, rolePermission(CONSTANTS.ROLES.admin, CONSTANTS.ROLES.leadGuide), ToursController.updateOne)
+    .delete(accessTokenParse, rolePermission(CONSTANTS.ROLES.admin, CONSTANTS.ROLES.leadGuide), ToursController.deleteOne);
 
 toursRoute.use('/:tour/reviews', reviewsRouter);

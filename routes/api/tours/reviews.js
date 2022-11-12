@@ -6,8 +6,11 @@ import {CONSTANTS} from '../../../utils/index.js';
 export const reviewsRouter = express.Router({mergeParams: true});
 
 reviewsRouter.route('/')
-    .post(accessTokenParse, ReviewsController.post)
-    .get(ReviewsController.get);
+    .post(accessTokenParse, ReviewsController.createReview)
+    .get(ReviewsController.getByTour);
 
-reviewsRouter.delete('/:id', accessTokenParse, rolePermission(CONSTANTS.ROLES.admin, CONSTANTS.ROLES.leadGuide), ReviewsController.delete)
+reviewsRouter.route('/:id')
+    .delete(accessTokenParse, rolePermission(CONSTANTS.ROLES.admin), ReviewsController.deleteOne)
+    .get(ReviewsController.getOne)
+    .patch(accessTokenParse, rolePermission(CONSTANTS.ROLES.admin), ReviewsController.updateOne);
 

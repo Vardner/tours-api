@@ -65,9 +65,11 @@ export const User = new mongoose.Schema({
             message: process.env.NODE_ENV === 'development' ? 'Password in DB must be hashed' : 'Something went wrong'
         }
     },
+    /** Hash using which user will be able to reset his password */
     resetPassword: {
         type: types.String
     },
+    /** When user hash reset expires */
     resetPasswordExp: {
         type: Date
     },

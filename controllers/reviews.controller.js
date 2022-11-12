@@ -4,7 +4,7 @@ import {QueryParser} from './utilities/query-parser.js';
 import {HandlerFactory} from './utilities/handler-factory.js';
 
 export class ReviewsController {
-    static post = catchAsync(async (req, res, next) => {
+    static createReview = catchAsync(async (req, res, next) => {
         const user = req._middlewareData.user;
         const relatedTour = req.params.tour;
         const tour = await DB.models.Tour.findById(relatedTour);
@@ -25,7 +25,7 @@ export class ReviewsController {
         res.json({status: 'success', data: {review}});
     });
 
-    static get = catchAsync(async (req, res, next) => {
+    static getByTour = catchAsync(async (req, res, next) => {
         const tourId = req.params.tour;
 
         if (!tourId) {
@@ -46,5 +46,18 @@ export class ReviewsController {
         res.json({status: 'success', results: reviews.length, data: {reviews}});
     });
 
-    static delete = HandlerFactory.deleteOne(DB.models.Review);
+    static deleteOne = HandlerFactory.deleteOne(DB.models.Review);
+
+    static updateOne = HandlerFactory.updateOne(DB.models.Review, {
+        sanitizer: (body) => {
+            body.createdAt = undefined;
+            body.user = undefined;
+            body.tour = undefined;
+            return body;
+        }
+    });
+
+    static getOne = HandlerFactory.getOne(DB.models.Review, {
+       populates: [{path: 'tour'}, {path: 'user', select: DB.projections.User.thirdPartyView}]
+    });
 }
