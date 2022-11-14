@@ -6,7 +6,7 @@ import {CONSTANTS} from '../../../utils/index.js';
 export const reviewsRouter = express.Router({mergeParams: true});
 
 reviewsRouter.route('/')
-    .post(accessTokenParse, ReviewsController.createReview)
+    .post(accessTokenParse, rolePermission(CONSTANTS.ROLES.user), ReviewsController.createReview)
     .get(ReviewsController.getByTour);
 
 reviewsRouter.route('/:id')

@@ -11,11 +11,11 @@ export const toursRoute = express.Router();
 toursRoute.get('/top-5-cheap', ToursController.getTop5Cheap);
 
 toursRoute.get('/stats', ToursController.getTourStats);
-toursRoute.get('/monthly-plan/:year', ToursController.getMonthlyPlan);
+toursRoute.get('/monthly-plan/:year', accessTokenParse, rolePermission(CONSTANTS.ROLES.admin, CONSTANTS.ROLES.leadGuide, CONSTANTS.ROLES.guide), ToursController.getMonthlyPlan);
 
 toursRoute.route('/')
-    .get(hpp(), accessTokenParse, ToursController.getAllTours)
-    .post(ToursController.createOne);
+    .get(hpp(), ToursController.getAllTours)
+    .post(accessTokenParse, rolePermission(CONSTANTS.ROLES.admin, CONSTANTS.ROLES.leadGuide),ToursController.createOne);
 
 toursRoute.route('/:id')
     .get(ToursController.getOne)

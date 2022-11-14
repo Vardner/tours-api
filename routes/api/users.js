@@ -7,19 +7,25 @@ import {CONSTANTS} from '../../utils/index.js';
 
 export const usersRoute = express.Router();
 
-usersRoute.get('/', UsersController.getAllUsers);
-usersRoute.get('/me', accessTokenParse, UsersController.getMe);
-
 usersRoute.post('/signup', AuthController.signUp);
 usersRoute.post('/login', AuthController.signIn);
-usersRoute.patch('/alter', accessTokenParse, UsersController.alter);
-
-usersRoute.patch('/changePassword', accessTokenParse, AuthController.changePassword);
 usersRoute.post('/forgotPassword', AuthController.forgotPassword);
 usersRoute.patch('/resetPassword', hpp(), AuthController.resetPassword);
-usersRoute.delete('/deleteAccount', accessTokenParse, UsersController.deleteAccount);
 
+usersRoute.use(accessTokenParse);
+
+
+usersRoute.get('/me', UsersController.getMe);
+
+
+usersRoute.patch('/alter', UsersController.alter);
+
+usersRoute.patch('/changePassword', AuthController.changePassword);
+usersRoute.delete('/deleteAccount', UsersController.deleteAccount);
+
+usersRoute.use(rolePermission(CONSTANTS.ROLES.admin));
+usersRoute.get('/', UsersController.getAllUsers);
 usersRoute.route('/:id')
-    .delete(accessTokenParse, rolePermission(CONSTANTS.ROLES.admin), UsersController.deleteUser)
-    .get(accessTokenParse, UsersController.getUser)
-    .patch(accessTokenParse, rolePermission(CONSTANTS.ROLES.admin), UsersController.update);
+    .delete(UsersController.deleteUser)
+    .get(UsersController.getUser)
+    .patch(UsersController.update);
