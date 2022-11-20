@@ -13,7 +13,9 @@
   "scripts": {
     "dev": "nodemon server.js",
     "debug": "ndb server.js",
-    "start:prod": "cross-env NODE_ENV=production node server.js"
+    "start:prod": "cross-env NODE_ENV=production node server.js",
+    "migrate:all:up": "cross-env operation=up node ./database/migrations/all.js",
+    "migrate:all:down": "cross-env operation=down node ./database/migrations/all.js"
   },
   "author": "",
   "license": "ISC",

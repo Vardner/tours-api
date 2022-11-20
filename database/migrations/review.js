@@ -10,12 +10,12 @@ dotenv.config({path: './env/config.env', debug: true});
 const operation = process.env.operation === 'up' ? 'up' : 'down';
 const DATABASE_URL = process.env.DB_URL.replace('<PASSWORD>', process.env.DB_PASSWORD);
 await mongoose.connect(DATABASE_URL);
-const modelName = ModelNames.Tours;
+const modelName = ModelNames.Reviews;
 const controller = {
     up: async () =>{
         try {
             console.log(`Migration ${modelName} running up operation`);
-            const toursList = fs.readFileSync(path.resolve(process.cwd(), './dev-data/data/tours.json'), {encoding: 'utf8'})
+            const toursList = fs.readFileSync(path.resolve(process.cwd(), './dev-data/data/reviews.json'), {encoding: 'utf8'})
             await models[modelName].insertMany(JSON.parse(toursList), {rawResult: true});
             console.log(`Migration ${modelName} Result: migration succeed`);
         } catch (e) {

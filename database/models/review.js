@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import {Names} from './models-names.js';
-import {DB} from '../database.js';
+import {projections} from './projections/index.js';
 
 const types = mongoose.Schema.Types;
 
@@ -40,6 +40,6 @@ export const Review = new mongoose.Schema(
 );
 
 Review.pre(/^find/, function (next) {
-    this.populate({path: 'user', select: DB.projections.User.thirdPartyView});
+    this.populate({path: 'user', select: projections.User.thirdPartyView});
     next();
 });
