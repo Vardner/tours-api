@@ -13,11 +13,11 @@ const DATABASE_URL = process.env.DB_URL.replace('<PASSWORD>', process.env.DB_PAS
 await mongoose.connect(DATABASE_URL);
 const modelName = ModelNames.Users;
 const controller = {
-    up: async () =>{
+    up: async () => {
         try {
             console.log(`Migration ${modelName} running up operation`);
             const toursList = fs.readFileSync(path.resolve(process.cwd(), './dev-data/data/users.json'), {encoding: 'utf8'})
-            await models.Tour.insertMany(JSON.parse(toursList), {rawResult: true});
+            await models[modelName].insertMany(JSON.parse(toursList), {rawResult: true});
             console.log(`Migration ${modelName} Result: migration succeed`);
         } catch (e) {
             console.error(`Migration ${modelName} Result: migration failed, ` + e);

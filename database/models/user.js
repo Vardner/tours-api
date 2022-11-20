@@ -59,7 +59,6 @@ export const User = new mongoose.Schema({
         required: [true, 'Password is required'],
         validate: {
             validator: (val) => {
-                console.log('model validator trigger');
                 return isArgonPwd(val);
             },
             message: process.env.NODE_ENV === 'development' ? 'Password in DB must be hashed' : 'Something went wrong'
