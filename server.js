@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import mongoose from 'mongoose';
+import {DB} from './database/database.js';
 
 let server;
 
@@ -26,13 +26,11 @@ process.on('uncaughtException', (err) => {
 
 dotenv.config({path: './env/config.env', debug: true});
 
-const DATABASE_URL = process.env.DB_URL.replace('<PASSWORD>', process.env.DB_PASSWORD);
-
-mongoose.connect(DATABASE_URL)
-    .then((connection) => import('./app.js'))
+await DB.openConnection(process.env.NODE_ENV === 'development')
+    .then(() => import('./app.js'))
     .then(module => {
         server = module.app.listen(process.env.PORT || 8080, 'localhost', () => {
-            console.log('server started...');
+            console.log(`App started ${new Date()}...`);
         });
     });
 

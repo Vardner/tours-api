@@ -115,6 +115,10 @@ export const Tour = new mongoose.Schema(
     }
 );
 
+Tour.index({price: 1, ratingsAverage: -1});
+Tour.index({price: 1, ratingsAverage: 1});
+Tour.index({slug: 1});
+
 
 Tour.virtual('durationWeeks').get(function () {
     return this.duration / 7;

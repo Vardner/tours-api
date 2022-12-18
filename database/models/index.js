@@ -8,4 +8,4 @@ export const models = {
     Tour: mongoose.model(Names.Tours, Tour),
     User: mongoose.model(Names.Users, User),
     Review: mongoose.model(Names.Reviews, Review)
-}
+};
