@@ -4,12 +4,12 @@ import fs from 'fs';
 import * as path from 'path';
 import {models} from '../models/index.js';
 import {Names as ModelNames} from '../models/models-names.js';
+import {DATABASE_URL} from './constants.js';
 
 dotenv.config({path: './env/config.env', debug: true});
 
 const operation = process.env.operation === 'up' ? 'up' : 'down';
 
-const DATABASE_URL = process.env.DB_URL.replace('<PASSWORD>', process.env.DB_PASSWORD);
 await mongoose.connect(DATABASE_URL);
 const modelName = ModelNames.Users;
 const controller = {
