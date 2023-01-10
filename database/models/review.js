@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import {Names} from './models-names.js';
 import {projections} from './projections/index.js';
+import {models} from './index.js';
 
 const types = mongoose.Schema.Types;
 
@@ -39,7 +40,40 @@ export const Review = new mongoose.Schema(
     }
 );
 
+Review.statics.calcAvgRatings = async function (tourId) {
+    const stats = (await models.Review.aggregate([
+        {
+            $match: {tour: tourId}
+        },
+        {
+            $group: {
+                _id: '$tour',
+                total: {$count: {}},
+                avg: {$avg: '$rating'}
+            }
+        },
+        {
+            $set: {
+                avg: {$round: ['$avg', 1]},
+            }
+        }
+    ]))[0];
+
+    console.log(stats);
+
+    models.Tour.findOneAndUpdate(
+        {_id: tourId},
+        {ratingsAverage: stats.avg, ratingsQuantity: stats.total},
+        undefined,
+        () => 0 // Somehow this shit function refuses to work without await or callback
+    );
+};
+
 Review.pre(/^find/, function (next) {
     this.populate({path: 'user', select: projections.User.thirdPartyView});
     next();
+});
+// Run avg rating of tours update on each new review
+Review.post('save', function () {
+    Review.statics.calcAvgRatings(this.tour);
 });
