@@ -39,6 +39,8 @@ export const Review = new mongoose.Schema(
         toObject: {virtuals: true},
     }
 );
+// Prevent tours from having duplicate reviews from the same user
+// Review.index({tour: 1, user: 1}, {unique: true});
 
 Review.statics.calcAvgRatings = async function (tourId) {
     const stats = (await models.Review.aggregate([
@@ -56,17 +58,14 @@ Review.statics.calcAvgRatings = async function (tourId) {
             $set: {
                 avg: {$round: ['$avg', 1]},
             }
-        }
-    ]))[0];
+        }  // Means that no reviews related to the tour were found and we should reset reviews data
+    ]))[0] || {avg: 0, total: 0};
 
-    console.log(stats);
 
     models.Tour.findOneAndUpdate(
         {_id: tourId},
-        {ratingsAverage: stats.avg, ratingsQuantity: stats.total},
-        undefined,
-        () => 0 // Somehow this shit function refuses to work without await or callback
-    );
+        {ratingsAverage: stats.avg, ratingsQuantity: stats.total}
+    ).exec();
 };
 
 Review.pre(/^find/, function (next) {
@@ -75,5 +74,17 @@ Review.pre(/^find/, function (next) {
 });
 // Run avg rating of tours update on each new review
 Review.post('save', function () {
-    Review.statics.calcAvgRatings(this.tour);
+    if (this.isModified('rating')) {
+        Review.statics.calcAvgRatings(this.tour);
+    }
+});
+
+// #query_middleware
+Review.pre(/^findOneAnd/, async function () {
+    // Execute find query to find document before it was deleted
+    // It is essential to clone query first because each query can be executed only once
+    // Since we made a clone, then we have all the differentiator parameters,\
+    // so we can neglect specification of the document
+    const document = await this.clone().findOne().lean(true).exec();
+    this.post(() => Review.statics.calcAvgRatings(document.tour));
 });

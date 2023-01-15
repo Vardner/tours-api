@@ -106,7 +106,6 @@ export const Tour = new mongoose.Schema(
             default: []
         },
 
-
         secret: {type: types.Boolean, default: false},
     },
     {
