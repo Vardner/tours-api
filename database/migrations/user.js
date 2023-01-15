@@ -6,10 +6,10 @@ import {models} from '../models/index.js';
 import {Names as ModelNames} from '../models/models-names.js';
 import {DATABASE_URL} from './constants.js';
 
-dotenv.config({path: './env/config.env', debug: true});
+dotenv.config({path: './env/config.env', override: true});
 
 const operation = process.env.operation === 'up' ? 'up' : 'down';
-
+mongoose.set('strictQuery', false);
 await mongoose.connect(DATABASE_URL);
 const modelName = ModelNames.Users;
 const controller = {

@@ -3,6 +3,7 @@ import {projections} from './models/projections/index.js';
 import mongoose from 'mongoose';
 
 function connect (url, isDevMode) {
+    mongoose.set('strictQuery', false);
     return mongoose.connect(url, {autoIndex: isDevMode, autoCreate: isDevMode}).then(() => true, (e) => {
         console.error(e);
         return false;
