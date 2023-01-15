@@ -116,6 +116,7 @@ export const Tour = new mongoose.Schema(
 
 Tour.index({price: 1, ratingsAverage: -1});
 Tour.index({price: 1, ratingsAverage: 1});
+Tour.index({startLocation: '2dsphere'});
 Tour.index({slug: 1});
 
 

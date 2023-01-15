@@ -1,5 +1,5 @@
 import {QueryParser} from './utilities/query-parser.js';
-import {catchAsync} from '../utils/index.js';
+import {AppError, catchAsync} from '../utils/index.js';
 import {DB} from '../database/database.js';
 import {HandlerFactory} from './utilities/handler-factory.js';
 
@@ -7,6 +7,7 @@ const TourModel = DB.models.Tour;
 
 export class ToursController {
     static getAllTours = catchAsync(async (req, res, next) => {
+        debugger
         const queryHelper = new QueryParser(req.query);
         queryHelper.filterFunctionalKeys();
         queryHelper.parseFunctionalKeys();
@@ -56,6 +57,31 @@ export class ToursController {
     });
 
     static deleteOne = HandlerFactory.deleteOne(TourModel);
+
+    // :distance/center/:latlng/unit/:unit
+    // 200/center/48.437705,35.035719/unit/mi
+    static async getToursWithin (req, res, next) {
+        let {distance, latlng, unit} = req.params;
+        distance = +distance;
+        let [latitude, longitude] = latlng.split(',');
+        latitude = +latitude;
+        longitude = +longitude;
+
+        if (isNaN(latitude) || isNaN(longitude)) {
+            return new AppError('Invalid latitude or longitude', 400);
+        }
+        // @see https://www.mongodb.com/docs/manual/geospatial-queries/
+        // alert('Read how to make geospatial queries');
+
+        // 3963.2 - radius of Earth in miles
+        // 6378.1 - radius of Earth in kilometers
+        // @see https://stackoverflow.com/questions/12180290/convert-kilometers-to-radians#:~:text=radians%20to%20distance%3A%20multiply%20the,miles)%2C%20which%20is%203959.
+        const radians = distance / (unit === 'mi' ? 3963.2 : 6378.1);
+        const tours = await DB.models.Tour.find({startLocation: {$geoWithin: {$centerSphere: [[longitude, latitude], radians]}}});
+
+        res.statusCode = 200;
+        res.json({status: 'success', results: tours.length, data: {tours: tours,}});
+    }
 
     static getTop5Cheap (req, res, next) {
         console.log('getTop5Cheap');

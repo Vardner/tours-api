@@ -17,6 +17,8 @@ toursRoute.route('/')
     .get(hpp(), ToursController.getAllTours)
     .post(accessTokenParse, rolePermission(CONSTANTS.ROLES.admin, CONSTANTS.ROLES.leadGuide),ToursController.createOne);
 
+toursRoute.get('/tours-within/:distance/center/:latlng/unit/:unit', ToursController.getToursWithin);
+
 toursRoute.route('/:id')
     .get(ToursController.getOne)
     .patch(accessTokenParse, rolePermission(CONSTANTS.ROLES.admin, CONSTANTS.ROLES.leadGuide), ToursController.updateOne)
