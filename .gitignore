@@ -39,13 +39,6 @@ Thumbs.db
 /.idea/
 /.vscode/
 /.awcache/
-package-lock.json
-resources/content/content-for-recycler/biplan-start-test/dev-start-screen.ts
-/contentbas.xml
 /compilation-stats.json
 /package-lock.json
-/personal-cards.js
-/temp.xml
 
-/external-apps/texture-builder/**/
-/external-apps/secure-connector/storage/*
