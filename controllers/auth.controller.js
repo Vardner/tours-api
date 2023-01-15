@@ -88,7 +88,7 @@ export class AuthController {
         const user = await DB.models.User.findOne({email: req.body.email});
 
         if (!user) {
-            next(new AppError(404, 'There is no user with provided email address'));
+            next(new AppError('There is no user with provided email address', 404));
             return;
         }
 

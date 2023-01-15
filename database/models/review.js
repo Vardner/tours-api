@@ -39,8 +39,9 @@ export const Review = new mongoose.Schema(
         toObject: {virtuals: true},
     }
 );
+
 // Prevent tours from having duplicate reviews from the same user
-// Review.index({tour: 1, user: 1}, {unique: true});
+Review.index({tour: 1, user: 1}, {unique: true});
 
 Review.statics.calcAvgRatings = async function (tourId) {
     const stats = (await models.Review.aggregate([

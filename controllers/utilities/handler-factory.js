@@ -82,7 +82,7 @@ export class HandlerFactory {
             const document = await query;
 
             if (!document) {
-                next(new AppError(`No ${modelName} was found`));
+                next(new AppError(`No ${modelName} was found`, 404));
             }
 
             res.statusCode = 200;
@@ -109,7 +109,7 @@ export class HandlerFactory {
             const document = await query;
 
             if (!document) {
-                next(new AppError(`No ${modelName} was found`));
+                next(new AppError(`No ${modelName} was found`, 404));
             }
 
             res.statusCode = 200;
