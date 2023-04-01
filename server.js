@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import {DB} from './database/database.js';
 
-let server;
+export let server;
 
 process.on('unhandledRejection', (err) => {
     console.error('Unhandled rejection! 💥. Shutting down...');

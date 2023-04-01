@@ -13,6 +13,7 @@
   "scripts": {
     "dev": "nodemon server.js",
     "debug": "ndb server.js",
+    "run tests": "mocha --no-timeouts --watch ",
     "start:prod": "cross-env NODE_ENV=production node server.js",
     "migrate:all:up": "cross-env operation=up node ./database/migrations/all.js",
     "migrate:all:down": "cross-env operation=down node ./database/migrations/all.js"
@@ -39,6 +40,13 @@
     "xss-clean": "^0.1.1"
   },
   "devDependencies": {
-    "ndb": "^1.1.5"
+    "@faker-js/faker": "^7.6.0",
+    "@types/chai": "^4.3.4",
+    "@types/mocha": "^10.0.1",
+    "@types/supertest": "^2.0.12",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
+    "ndb": "^1.1.5",
+    "supertest": "^6.3.3"
   }
 }

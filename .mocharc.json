@@ -1,0 +1,15 @@
+{
+  "diff": false,
+  "extension": ["js", "cjs", "mjs"],
+  "spec": ["tests/**/*.test.js"],
+  "package": "./package.json",
+  "reporter": "spec",
+  "slow": "75",
+  "timeout": "2000",
+  "ui": "bdd",
+  "parallel": true,
+  "watch": true,
+  "watch-files": ["tests/**/*.test.js"],
+  "watch-ignore": ["node_modules"],
+  "configLink": "https://mochajs.org/#reporters"
+}

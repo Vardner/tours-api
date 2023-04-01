@@ -7,6 +7,10 @@ const filePath = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(filePath);
 const fileName = path.basename(filePath);
 
+console.log(filePath);
+console.log(__dirname);
+console.log(fileName);
+
 const dirElements = await fs.readdir(__dirname, {withFileTypes: true, encoding: 'utf8'})
 
 
